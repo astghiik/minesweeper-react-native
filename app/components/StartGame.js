@@ -7,7 +7,7 @@ import { setMines, setNumbers, newGame, gameState } from '../actions';
 
 let n = [];
 export const createField = (f, mines, openedArea) => {
-    if (mines.includes(f)) return <Text>x</Text>;
+    if (mines.includes(f)) return { q: 'x', color: 'red' };
 
     let q = 0;
     if (f === 0) {
@@ -78,14 +78,13 @@ export const createField = (f, mines, openedArea) => {
 
     n.push(f);
     //let cn = area.includes(f) ? `visible text-${setColor(q)}` : "invisible";
-    let fieldStyle = ![].includes(f) ? { //?????????????????
-        color: setColor(q),
 
-    } : {
-            display: 'none'
-        };
 
-    return <Text style={fieldStyle}>{q}</Text>;
+    return {
+        q,
+        color: setColor(q)
+    };
+
 };
 
 function StartGame(props) {

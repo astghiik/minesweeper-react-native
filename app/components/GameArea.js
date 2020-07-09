@@ -22,8 +22,8 @@ function GameArea(props) {
     let body = [];
 
 
-    function openField(e, f = +e.currentTarget.dataset.i) {
-        if (arguments.length === 1) e.preventDefault();
+    function openField(f) {
+        // if (arguments.length === 1) e.preventDefault();
 
         // if (minesCoordinates.includes(f) && !flags.includes(f) && start) {    // game over         
         //     Object.assign(alertMessage, { variant: 'danger', text: 'Game Over' });
@@ -77,6 +77,7 @@ function GameArea(props) {
         }
 
         openArea(opened);
+        console.log('opened are', opened.sort((a, b) => a - b))
 
         if (opened.length === 520) {
             gameState(false);
@@ -91,12 +92,19 @@ function GameArea(props) {
         let row = [];
 
         for (let j = 0; j < 12; j++) {
+            let n = i * 12 + j;
+            let field = createField(n, minesCoordinates, []);
+            let isOpened = openedArea.includes(n);
+
             row.push(
-                <TouchableOpacity key={i * 12 + j} activeOpacity={i * 12 + j} data-n={i * 12 + j} onPress={(e) => { console.log(e.nativeEvent) }}>
+                <TouchableOpacity key={n} onPress={() => !isOpened ? openField(n) : null}>
                     <Text
-                        style={[styles.text, { backgroundColor: openedArea.includes(i * 12 + j) ? '#eee' : '#ccc' }]}
+                        style={[styles.text, {
+                            color: field.color,
+                            backgroundColor: isOpened ? '#eee' : '#ccc',
+                        }]}
                     >
-                        {createField(i * 12 + j, minesCoordinates, [])}
+                        {isOpened ? field.q : ''}
 
                     </Text>
                 </TouchableOpacity>
@@ -104,7 +112,7 @@ function GameArea(props) {
         }
 
         body.push(
-            <View style={{ flexDirection: 'row' }}>{row}</View>
+            <View key={'row' + i} style={{ flexDirection: 'row' }}>{row}</View>
         );
     }
 
