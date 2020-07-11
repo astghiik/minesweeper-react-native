@@ -4,6 +4,7 @@ import { createField } from './StartGame';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setFlag, removeFlag, openArea, gameState } from '../actions';
+import { configs, colors } from '../constants';
 
 
 function GameArea(props) {
@@ -20,7 +21,8 @@ function GameArea(props) {
     } = props;
     let opened = [...openedArea];
     let body = [];
-
+    const { rows, columns, mines } = configs;
+    const { openedBgC, hiddenBgC } = colors;
 
     function openField(f) {
         // if (arguments.length === 1) e.preventDefault();
@@ -33,43 +35,44 @@ function GameArea(props) {
         //     return;
         // }
 
+        const n = rows * columns;
         for (let i = 0; i < arguments.length; i++) {
             let field = arguments.length === 1 ? f : arguments[i];
 
-            if (opened.includes(field) || flags.includes(field) || field < 0 || field > 239) continue;
+            if (opened.includes(field) || flags.includes(field) || field < 0 || field > n - 1) continue;
 
             if (!numbers.includes(field)) {
-                if (field % 12 === 0) {
+                if (field % columns === 0) {
                     if (field === 0) {
                         opened.push(field);
-                        openField(field + 1, field + 12, field + 13);
-                    } else if (field === 228) {
+                        openField(field + 1, field + columns, field + (columns + 1));
+                    } else if (field === n - columns) {
                         opened.push(field);
-                        openField(field - 12, field - 11, field + 1);
+                        openField(field - columns, field - (columns - 1), field + 1);
                     } else {
                         opened.push(field);
-                        openField(field - 12, field - 11, field + 1, field + 12, field + 13);
+                        openField(field - columns, field - (columns - 1), field + 1, field + columns, field + (columns + 1));
                     }
-                } else if ((field + 1) % 12 === 0) {
-                    if (field === 11) {
+                } else if ((field + 1) % columns === 0) {
+                    if (field === (columns - 1)) {
                         opened.push(field);
-                        openField(field - 1, field + 11, field + 12);
-                    } else if (field === 239) {
+                        openField(field - 1, field + (columns - 1), field + columns);
+                    } else if (field === n - 1) {
                         opened.push(field);
-                        openField(field - 1, field - 12, field - 13);
+                        openField(field - 1, field - columns, field - (columns + 1));
                     } else {
                         opened.push(field);
-                        openField(field - 12, field - 13, field - 1, field + 11, field + 12);
+                        openField(field - columns, field - (columns + 1), field - 1, field + (columns - 1), field + columns);
                     }
-                } else if (field < 11) {
+                } else if (field < (columns - 1)) {
                     opened.push(field);
-                    openField(field - 1, field + 1, field + 11, field + 12, field + 13);
-                } else if (field > 228) {
+                    openField(field - 1, field + 1, field + (columns - 1), field + columns, field + (columns + 1));
+                } else if (field > n - columns) {
                     opened.push(field);
-                    openField(field - 1, field + 1, field - 11, field - 12, field - 13);
+                    openField(field - 1, field + 1, field - (columns - 1), field - columns, field - (columns + 1));
                 } else {
                     opened.push(field);
-                    openField(field - 12, field - 13, field - 11, field - 1, field + 1, field + 11, field + 12, field + 13);
+                    openField(field - columns, field - (columns + 1), field - (columns - 1), field - 1, field + 1, field + (columns - 1), field + columns, field + (columns + 1));
                 }
             } else {
                 opened.push(field);
@@ -77,22 +80,21 @@ function GameArea(props) {
         }
 
         openArea(opened);
-        console.log('opened are', opened.sort((a, b) => a - b))
 
-        if (opened.length === 520) {
+        if (opened.length === n - mines) {
             gameState(false);
             return;
         }
 
     }
 
+    console.log(configs)
 
-
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < rows; i++) {
         let row = [];
 
-        for (let j = 0; j < 12; j++) {
-            let n = i * 12 + j;
+        for (let j = 0; j < columns; j++) {
+            let n = i * columns + j;
             let field = createField(n, minesCoordinates, []);
             let isOpened = openedArea.includes(n);
 
@@ -101,7 +103,7 @@ function GameArea(props) {
                     <Text
                         style={[styles.text, {
                             color: field.color,
-                            backgroundColor: isOpened ? '#eee' : '#ccc',
+                            backgroundColor: isOpened ? openedBgC : hiddenBgC,
                         }]}
                     >
                         {isOpened ? field.q : ''}
